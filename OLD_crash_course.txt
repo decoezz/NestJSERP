@@ -1,0 +1,46 @@
+Nest js is a framework built on top of node js 
+Nest js follows the MVC vision
+Nest js is opninated rather than express js that is not opninated
+to start a new project we type nest new nameoftheproject
+we can use yarn or npm
+what is so cool that when you type nest new it download most of the things that we download manually
+we start our file using npm run start:dev
+to create a module for the users we write nest g module users
+to create a controller for users we write nest g controller users
+to create a service for users we write next g service users
+@ is called a decorator it's used in most of the time to call pre defeined function
+we always use the decorator when we are idenifiying our routes for example:
+@Get(':id') //Get /users/:id
+   findOne(@Param('id') id:string){
+    return {id}
+}
+this imports the GET function automatically and imports the Param function too
+anything under this needs to have the id param something like the app.use in nodejs
+@Patch(':id') //PATCH /users/:id
+   update(@Param('id') id:string, @Body() userUpdate: {}){
+    return {id , ...userUpdate}
+}
+the @Body() identifies that we want the req.body from the user userUpdate is a function that we will implement
+the way that queries are handeled are really weird we will still learn more about it but for now this is how we do it
+@Get() //Get /users or /users?role=value&age=5
+   findAll(@Query('role') role?: 'INTERN' | 'ENGINEER' | 'ADMIN'){
+    return []
+}
+we can say that in this line it's implemented the same way as enum:{values:{}} but could also say it's werider
+we put all our functions logic inside the service and file inject it to the controller file
+
+@Injectabl
+injection is the way of calling functions,repos,directories inside nestjs
+injection work on making an instance of the thing you are calling
+if an instance already exists it uses the instance that is existing
+
+
+ParseIntPipe is a validator or transformer that is used on the params that are comming from the requests(like middleware)
+data transfer object(DTO) schema is the validation that happens before saving the data(like middleware)
+we make files with the extension of .dto to identify the file as DTO so we can implement the validators
+to make an update schema for the body we use a file that extends PartialType(The main schema)
+to add add a validator we use any function we want from the class-validator import { IsEmail,IsEnum,IsNotEmpty,IsString } from "class-validator" and we put the function above the data property
+
+we will use NEON for the database instead of mongodb and we will use Prisma for something called ORM
+neon is a postgres sql database which we could say it's a mix between the nosql in the coding way and more like sql in the way of working inside the database 
+

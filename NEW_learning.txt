@@ -1,0 +1,118 @@
+so i decided to come back to NestJS to enforce my learnings and have more experience with different languages and different coding (typescript) so we will walk through the journey of self learning and utilizing documentation and AI power to try to relearn/remember NestJS
+
+NestJS concepts:
+    there is 5 important concepts that NestJS work on that i need to understand and remember to everyone of them to work on any project.First will start with the three most important folders structure.
+    1.Modules:
+        you can think of the Modules as a group organizer.They define all the services,controllers,imports(all main concepts of a NestJS project).There is always an important root module file called AppModule
+    2.Controllers:
+        you can think of controllers in NestJS as a combination between routes and controllers in NodeJS.Controllers are used to handle the HTTP requests and can handle the body,params,query decorators(will talk about them later).
+    3.Services:
+        Services are more like controllers in NodeJS in the way that they handle the actual logic of the function but instead of exporting and importing the functions.They use a NestJS conecpt called Injection where any injected class/function could be called later using decorators
+    4.Decorators:
+        They are essentinally what makes NestJS special.Think of them as a way to call built in function(or in injected class/function).They are simply called through the @ symbol.There are a lot of decorators in NestJS that we will use through out the project.
+    5.Pipes:
+        While you might think Pipes are not one of the most important concepts in NestJS.But they will probably be used in most of the project that's why i added them here.Pipes are tools used to convert/validate the data sent from the user to anything we want. for example one of the most famous pipes is called ParseIntPipe used to turn string ID to a number.Also Pipes are used to validate data just like Joi and Zod.
+        
+Some important notes from the old course:
+
+Nest js is a framework built on top of node js 
+Nest js follows the MVC(model view controller) vision
+
+to start a new project we use: nest new nameoftheproject
+we run our file using: npm run start:dev
+
+I replaced this part with an extension called NestJS Files that could just right click on explorer part and create any type of file we want
+    to create a module for the users we write nest g module users
+    to create a controller for users we write nest g controller users
+    to create a service for users we write next g service users
+we put all our functions logic inside the service and file inject it to the controller file
+
+data transfer object(DTO) schema is the validation that happens before saving the data(like middleware)
+
+we make files with the extension of .dto to identify the file as DTO so we can implement the validators
+
+to make an update schema for the body we use a file that extends PartialType(The main schema)
+
+to add add a validator we use any function we want from the class-validator import { IsEmail,IsEnum,IsNotEmpty,IsString } from "class-validator" and we put the function above the data property
+
+we will use NEON for the database instead of mongodb and we will use Prisma for something called ORM
+
+neon is a postgres sql database which we could say it's a mix between the nosql in the coding way and more like sql in the way of working inside the database 
+
+ORM(object-Relational Mapping):
+    -it's a way to comminucate with the sql/relational database using object relational code instead of raw sql code. we could call it a tranformer that changes from normal relational table to classes and objects.rows become instances and columns become properties
+
+benefits of using prisma that i will need to use in the future:
+    -Type saftey queries
+    -simplified Database operations
+    
+now to intialize prisma we use the command : npx prisma init
+now we will get the folder called prisma and inside it is schema.prisma which will contain all the configuration needed for the database.
+now to link between prisma and neon all we have to do is just put the link of the neon connection string into the configuartion file in the url part.
+
+important note: schema.prisma is also the folder where we will define our models/data
+
+defining data models in postgresql is important as it allows as to set the data models and types of data that will be saved to the database
+
+we do that in the schema.prisma file using the word model and we treat it the same way we treat classes in other programming languages for example:
+model Employee{
+  id Int @id @default(autoincrement())
+  name String 
+  role String
+  email String @unique
+}
+
+now after we do our thing and define some data we use mirgation in cli to migrate the neon with prisma using the following command:npx prisma migrate dev --name init
+
+now everything is migrated and synced we can start playing with our database using prismaservice.ts file
+
+we then import the following to get access to the prisma library:
+import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
+import { PrismaClient } from '@prisma/client';
+another important step is making sure the class inherts and implements all the follwoing : export class PrismaService extends PrismaClient implements OnModuleInit,OnModuleDestroy{}
+
+OnModuleInit is used to intialize a connection
+OnModuleDestroy is used to disconned from a connection 
+now we need to make sure the class has a constructor that intialize all the function
+
+after we finised intializing the class we start working in the module file
+
+in the module file we import the class we just created and make sure we specify that our class is going to be the one providing providers(as the place that provides with data/model) and exports(as the one where the data will be exported to): 
+@Module({
+    providers: [PrismaService],
+    exports:[PrismaService]
+})
+now to save the schema changes to our prisma we use :npx prisma generate
+
+to start with our application/code we need to remember that nestjs require three important files:module,service,controller
+
+the work flow starts by working in the service(define what the function will do) file then controller(will define the GET,POST like route file) then the module(where you will define the controllers:[] and providers)
+
+we always need to remmeber that in the service file we also work in the class and do all work inside a class so we will always need a constructor and because we are using prisma we will intialize an object of prisma so we can get access to the functions of the prisma class :     constructor(private prisma:PrismaService) {}
+
+after we define the constructor we can define any function we want but make sure it's an async function for example:
+    async createEmployee(name : string,role :string,email:string,id: number){
+        return this.prisma.Employee.create({data:{name,role,email,id}})
+    }
+
+now we run back to the Controller to define our function so they can be called using methods like GET,POST
+
+make sure you import the following so you can use them in controller : 
+import { Controller,Get,Post,Body } from '@nestjs/common';
+
+we use the same way in the service.ts file and we create a constructor so we get access to all the functions of the EmployeeService file but this time we define the object to be readonly so that it can't be turned into another object:     constructor(private readonly Employee:EmployeeService){}
+
+to define a function with a body we do something like this :
+    @Post('CreateEmployee')
+    async createEmployee(@Body() body:{name:string,role:string,email:string,id:number}){
+        return this.Employee.createEmployee(body.name,body.email,body.role,body.id)
+    }
+    
+i will still work on the idea of validation and limitation but for now this will do.
+
+it looks like the extension i'm using to create nestjs file is causing a little bit of trouble because it imports everything directly into the app.module file which causes problems so if i get an error after creating new files i need to make sure that nothing was added to the app.module
+
+to define the name of the routes in the controller we go to the decortaor and add the name of the route like the following : @Controller('employees')
+
+same thing with the other methods:   @Get('getAllEmployees')
+
