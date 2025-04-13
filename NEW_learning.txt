@@ -116,3 +116,22 @@ to define the name of the routes in the controller we go to the decortaor and ad
 
 same thing with the other methods:   @Get('getAllEmployees')
 
+if we want to send an error message when something unexpected happens we use: throw new HttpException('message',HttpStatus.NOT_FOUND)
+
+i think for now that will be a good amount of error debugging and handeling
+
+we need to always remember to await all the operations done on the database since it's still like node.js in it's core (one threaded)
+
+so i wanted to create an update user function but the issue i had is that i wanted the data provided from the request body to be optional and to achieve this we will work on one of the concepts we talk about in the start which is dto
+
+so we create a new .dto.ts file and import the class-validator so we can do all the magic we need to validate the data
+
+so i already had some kind of knowledge that we need to identify the name in the following way : name?:string but i needed to do this in a dto file/class and use class-validator
+
+we need to use this line inside main.ts file to enable validation :app.useGlobalPipes(new ValidationPipe({ transform: true }));
+
+so to make the update helper function more modular and usable for other models to use i used an AI agent to help me create a function that works on any model all you have to do is send the prisma service, id of the item,the optional data and the model name
+
+    async updateEmployee(id:number,name?:string,email?:string){
+        return updateEntity(this.prisma.employee,id,{name,email},'Employee')
+    }
