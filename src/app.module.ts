@@ -1,3 +1,5 @@
+import { ProductModule } from '../Product/product.module';
+import { ProductController } from '../Product/product.controller';
 import { EmployeeModule } from './../Employee/employee.module';
 import { EmployeeController } from '../Employee/employee.controller';
 import { PrismaModule } from './../prisma/prisma.module';
@@ -8,11 +10,9 @@ import { AppService } from './app.service';
 
 @Module({
   imports: [
+        ProductModule, 
         EmployeeModule, 
         PrismaModule, ],
-//   controllers: [
-//         EmployeeController, AppController],
-//   providers: [
-//         PrismaService, AppService],
+
 })
 export class AppModule {}

@@ -16,6 +16,35 @@ datasource db {
 model Employee{
   id Int @id @default(autoincrement())
   name String 
-  role String
+  role Role @default(Employee)
   email String @unique
 }
+
+model Product{
+  brand Brand
+  modelnumber String @unique
+  coolingCapacity Int
+  powerConsumption Int
+  price Int
+  inventoryStock Int
+  StoreStock Int
+  inStore Boolean @default(false)
+  photo String? @default("doesn't exist")
+  unitSold Int @default(0)
+  @@map("Product")
+}
+
+enum Role{
+  Employee
+  Inventory_Manager
+  Store_Manager
+}
+
+enum Brand{
+  Fresh
+  Unionaire
+  Sharp
+  Carrier
+  LG
+}
+

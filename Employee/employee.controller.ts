@@ -6,6 +6,7 @@ import { Controller,Get,Post,Body, Res, HttpCode, Delete, Query, HttpException, 
 import { EmployeeService } from './employee.service';
 import { parseId } from 'src/Helpers/ParseNumberQuery';
 import { updateEmployeeDto } from './dto/update-employee.dto';
+import { Role } from '@prisma/client';
 @Controller('employees')
 export class EmployeeController {
     constructor(private readonly Employee:EmployeeService){}
@@ -22,8 +23,8 @@ export class EmployeeController {
     }
     @Post('CreateEmployee')
     @HttpCode(201)
-    async createEmployee(@Body() body:{name:string,role:string,email:string}){
-        return this.Employee.createEmployee(body.name,body.email,body.role)
+    async createEmployee(@Body() body:{name:string,role:Role,email:string}){
+        return this.Employee.createEmployee(body.name,body.role,body.email)
     }
     @Patch('UpdateEmployee')
     @HttpCode(200)

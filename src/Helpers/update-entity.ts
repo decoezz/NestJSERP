@@ -26,7 +26,6 @@ export async function updateEntity<T>(
             HttpStatus.BAD_REQUEST,
         );
     }
-    
     // Perform the update
     try {
         const updatedEntity = await model.update({

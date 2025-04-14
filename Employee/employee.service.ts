@@ -5,6 +5,7 @@ https://docs.nestjs.com/providers#services
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { updateEntity } from 'src/Helpers/update-entity';
 import { PrismaService } from 'prisma/prisma.service';
+import { Role } from '@prisma/client';
 @Injectable()
 export class EmployeeService {
     constructor(private prisma:PrismaService) {}
@@ -23,7 +24,7 @@ export class EmployeeService {
         }
         return user
     }
-    async createEmployee(name : string,role :string,email:string){
+    async createEmployee(name : string,role:Role,email:string){
         return await this.prisma.employee.create({data:{name,role,email}})
     }
     async updateEmployee(id:number,name?:string,email?:string){

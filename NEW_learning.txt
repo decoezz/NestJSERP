@@ -47,6 +47,7 @@ benefits of using prisma that i will need to use in the future:
     -simplified Database operations
     
 now to intialize prisma we use the command : npx prisma init
+
 now we will get the folder called prisma and inside it is schema.prisma which will contain all the configuration needed for the database.
 now to link between prisma and neon all we have to do is just put the link of the neon connection string into the configuartion file in the url part.
 
@@ -135,3 +136,14 @@ so to make the update helper function more modular and usable for other models t
     async updateEmployee(id:number,name?:string,email?:string){
         return updateEntity(this.prisma.employee,id,{name,email},'Employee')
     }
+
+when working on the modelling part inside the schema.prisma file we work in a special language that is called prisma schema it looks like a mix of sql and a little bit of js anyway there is a lot of important decorators that we will use like (@unique,@default or even optional through String? data type) and will use different types of relations like (@relation which could have multiple data fields like fields,reference) for now we will stick to the basics and work with minimal relations
+
+we use npx prisma studio  to visualize our sql database and preform  operations
+
+we also use the following command in terminal to add a new table into our database : npx prisma migrate dev --name add-product-table
+
+sometimes the database might glitch a little bit but it's okay just try to work on the npx prisma migrate dev --name add-product-table command and try to take care of sensitive case keys
+
+when identifing a route that will accept a parameter we need to define that in our @Get decorator for example :  @Get('GetProduct/:modelnumber')
+
