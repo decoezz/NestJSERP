@@ -3,8 +3,8 @@ https://docs.nestjs.com/providers#services
 */
 import { HttpException,HttpStatus,Injectable } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
-import { updateEntity } from 'src/Helpers/update-entity';
 import { CreateProductDto } from './dto/create-Product.dto';
+import { Brand } from '@prisma/client';
 @Injectable()
 export class ProductService {
     constructor(private prisma:PrismaService){}
@@ -33,4 +33,19 @@ export class ProductService {
         }
         return result
     }
+    async DeleteProduct(modelnumber:string){
+        const result =  await this.prisma.product.findUnique({where:{modelnumber:modelnumber}})
+        if(!result){
+            throw new HttpException('No AC found with this model number.Please try again',HttpStatus.BAD_REQUEST)
+        }
+        return await this.prisma.product.delete({where:{modelnumber}})
+    }
+    async getProductByBrand(brand:Brand){
+        const results = await this.prisma.product.findMany({where:{brand}})
+        if(!results || results.length === 0){
+            throw new HttpException('No AC found for this brand.Please try again',HttpStatus.BAD_REQUEST)
+        }
+        return results
+    }
+    
 }
