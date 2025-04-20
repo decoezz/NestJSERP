@@ -1,3 +1,5 @@
+import { AuthModule } from './Auth/auth.module';
+import { UserModule } from './../User/user.module';
 import { ProductModule } from '../Product/product.module';
 import { ProductController } from '../Product/product.controller';
 import { EmployeeModule } from './../Employee/employee.module';
@@ -7,12 +9,15 @@ import { PrismaService } from './../prisma/prisma.service';
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
-        ProductModule, 
-        EmployeeModule, 
-        PrismaModule, ],
-
+    AuthModule,
+    UserModule,
+    ProductModule,
+    EmployeeModule,
+    PrismaModule,
+  ],
 })
 export class AppModule {}

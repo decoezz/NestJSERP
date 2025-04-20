@@ -13,38 +13,53 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Employee{
-  id Int @id @default(autoincrement())
-  name String 
-  role Role @default(Employee)
-  email String @unique
+model Employee {
+  firstname String
+  lastname  String
+  role      Role   @default(Employee)
+  email     String @unique
+  User      User?
+
+  @@id(name: "Employee", fields: [firstname, lastname])
 }
 
-model Product{
-  brand Brand
-  modelnumber String @unique
-  coolingCapacity Int
+model User {
+  userid            Int      @id @default(autoincrement())
+  username          String   @unique
+  password          String
+  employee          Employee @relation(fields: [employeeFirstname, employeeLastname], references: [firstname, lastname])
+  employeeFirstname String
+  employeeLastname  String
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt // Fixed
+  @@unique([employeeFirstname, employeeLastname])
+}
+
+model Product {
+  brand            Brand
+  modelnumber      String  @unique
+  coolingCapacity  Int
   powerConsumption Int
-  price Int
-  inventoryStock Int
-  StoreStock Int
-  inStore Boolean @default(false)
-  photo String? @default("doesn't exist")
-  unitSold Int @default(0)
+  price            Int
+  inventoryStock   Int
+  StoreStock       Int
+  inStore          Boolean @default(false)
+  photo            String? @default("doesn't exist")
+  unitSold         Int     @default(0)
+
   @@map("Product")
 }
 
-enum Role{
+enum Role {
   Employee
   Inventory_Manager
   Store_Manager
 }
 
-enum Brand{
+enum Brand {
   Fresh
   Unionaire
   Sharp
   Carrier
   LG
 }
-

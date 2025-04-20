@@ -147,3 +147,59 @@ sometimes the database might glitch a little bit but it's okay just try to work 
 
 when identifing a route that will accept a parameter we need to define that in our @Get decorator for example :  @Get('GetProduct/:modelnumber')
 
+todday i got the idea to start working on cookies and user authentication and i don't have a clue on how it's done in nestjs but i hope i can figure it out
+
+we start with   app.use(cookieParser()) in main.ts since it's kind of middleware so it looks like i will use something more custom called fastify and it will help me more than the normal cookies parser and i will make a custom decorator to access the cookies from the user 
+
+so cookie parser gives us access to the user/website cookies through the req.cookies 
+
+to start off we need to actually define what is a user since all i defiened was employee so a user will be a part of an employee but will have username and password
+
+so i will edit a little bit in the employee model so i give it a new form of id that will look like this :   @@id(name:"Employee",fields: [firstname,lastname]) and now userid will be an id that is default incremented id
+
+when we use something like @@id it's called composite primary key so now it's not a normal field which might cause some problems for example in my case when i try to make a relation between User and Employee and use the @@id as a key for the relation i face a problem and that is @relation needs a field that is either primary/unique or existing
+
+so grok helped me find a solution to that problem that is to manual adjust the EmployeeId through the following : employee         Employee @relation(fields: [employeeFirstname, employeeLastname], references: [firstname, lastname]) and now to the enforce the relation of one to one with Employee we use the following line :   @@unique([employeeFirstname,employeeLastname])
+
+
+after applying the new changes using : npx prisma migrate dev --name add-user-model and using npx prisma generate after that to confirm the new changes and start working on the new changes
+
+just to remember that we always use a .dto.ts file to verify any kind of data coming from user even the login data we use a .dto file to confirm that an email and a password are sent
+
+so i think we need to rethink a little bit about the logic in the signup/create User and what is the relation between user and employee so i think that only the Inventory_Manager can create Employee or Store_Manager and then after Inventory_Manager creates a user after that the Employee/Store_Manager can go ahead and create a User using the employee email that the Inventory_Manager will give to the Employee and the employee can create a username and password normally
+
+so after outlinning our goals and target we will start by creating forcing the creation of Inventory_Manager through a file called seed.ts
+
+so i need to adjust most of the function and controllers since i changed the structure of the emoployee model but i will change it later for now i will comment it and fix it later
+
+so we will use passpowrt library for authentication
+
+for example if we use  @UseGuards(AuthGuard('jwt'),RolesGuard) in the controller it ensures that a jwt cookies will be sent with the response and we can create a custom decorator to limit the access so that only a specific role can use the function   @Roles('Inventory_Manager')
+
+
+in the service part to start the creating token and verifing the tokens in the signup or login we start with creating a jwtService object in the constructor just like the prismaService 
+
+the jwt options and setting are done in a file called jwt.Strategy file and this file contains all the options like the Expirations the payload and the secretKey
+
+to use .env variables inside nestjs there is multiple ways but the most convient way is to use dotenv 
+
+so to make a revision of how a token is made:
+    -a token consists of three parts: Header,Payload,Signature
+    -Header consists of the algorithm used and type of token
+    -Payload: consists of some data that we define for example in our program the payload consists of :user.userid,username,role
+    -Signature is the way that the program confirms the token has the secret key to confirm that the token is legit
+    
+an important remark that in the future when working with user data i need to include the employee data with and that is done through the find command we add {include:{employee:true}}
+
+so i faced a problem that is i wanted to create some helper functions to check for existing uesr using different fields like name,email,username while this approach is good the bug i faced is that to access the prismaService you need to intialize it as a function while i wanted to make it in a spereate file i couldn't export is as a function i needed a more complex solution
+
+i thought the solution to this problem was to create another class and inherit(one of oop most known concepts) the functions from it but my ai agent suggested that it is better to use a more nestjs solution and that is called composition
+
+
+So composition is in it's core "Custom Injectable decorator" and it's basically the same as a helper function that can be used through out the whole project
+
+composition in the end of it is just the same as modules and services that are Injectable so they can be provided in anyplace but as a code it's a just a class that has all the functions we need
+
+the important part is adding the new UserHelper in the module file , after this step you can intialize an object from the class in the constructor just like any class/Injectable
+
+so one of the annoying errors that i didn't really know is that when we hash a password it returns a promise and not a string so in the password field i was trying to pass it as a string but in reality it's a promise to fix this error we use a specified library of bcrypt that is used for typeScript
