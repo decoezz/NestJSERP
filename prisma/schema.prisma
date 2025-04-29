@@ -19,7 +19,6 @@ model Employee {
   role      Role   @default(Employee)
   email     String @unique
   User      User?
-
   @@id(name: "Employee", fields: [firstname, lastname])
 }
 

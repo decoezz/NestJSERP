@@ -6,7 +6,7 @@ import { EmployeeModule } from './../Employee/employee.module';
 import { EmployeeController } from '../Employee/employee.controller';
 import { PrismaModule } from './../prisma/prisma.module';
 import { PrismaService } from './../prisma/prisma.service';
-import { Module } from '@nestjs/common';
+import { Module,NestModule, MiddlewareConsumer } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
@@ -18,6 +18,7 @@ import { ConfigModule } from '@nestjs/config';
     ProductModule,
     EmployeeModule,
     PrismaModule,
+    ConfigModule.forRoot({ isGlobal: true }), // Make ConfigModule global
   ],
 })
-export class AppModule {}
+export class AppModule{}

@@ -24,30 +24,30 @@ export class EmployeeService {
   //     }
   //     return user
   // }
-  // async createEmployee(dto: {
-  //   firstname: string;
-  //   lastname: string;
-  //   role: Role;
-  //   email: string;
-  // }) {
-  //   if (dto.role === 'Inventory_Manager') {
-  //     //to ensure that the inventory_Manager can't be created through normal ways
-  //     throw new HttpException(
-  //       "Inventory_Manager can't be created through this endpoint.",
-  //       HttpStatus.FORBIDDEN,
-  //     );
-  //   }
-  //   checkExistingEmployeeByName(dto.firstname, dto.lastname);
-  //   checkExistingEmployeeByEmail(dto.email);
-  //   return this.prisma.employee.create({
-  //     data: {
-  //       firstname: dto.firstname,
-  //       lastname: dto.lastname,
-  //       role: dto.role,
-  //       email: dto.email,
-  //     },
-  //   });
-  // }
+  async createEmployee(dto: {
+    firstname: string;
+    lastname: string;
+    role: Role;
+    email: string;
+  }) {
+    if (dto.role === 'Inventory_Manager') {
+      //to ensure that the inventory_Manager can't be created through normal ways
+      throw new HttpException(
+        "Inventory_Manager can't be created through this endpoint.",
+        HttpStatus.FORBIDDEN,
+      );
+    }
+    await this.prisma.checkExistingUserByName(dto.firstname, dto.lastname);
+    await this.prisma.checkExistingEmployeeByEmail(dto.email);
+    return this.prisma.employee.create({
+      data: {
+        firstname: dto.firstname,
+        lastname: dto.lastname,
+        role: dto.role,
+        email: dto.email,
+      },
+    });
+  }
   // async updateEmployee(id:number,name?:string,email?:string){
   //     return updateEntity(this.prisma.employee,id,{name,email},'Employee')
   // }

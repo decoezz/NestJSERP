@@ -7,7 +7,6 @@ import { PrismaService } from 'prisma/prisma.service';
 import { createUserDto } from 'src/Helpers/create-User.dto';
 import { LoginUserDto } from './dto/login-User.dto';
 import { JwtService } from '@nestjs/jwt';
-import { UserHelper } from 'src/Helpers/user.Helper';
 import { Role } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 @Injectable()
@@ -15,12 +14,11 @@ export class UserService {
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService,
-    private userHelper : UserHelper
   ) {}
   async createUser(dto:createUserDto){
-    const employee = await this.userHelper.checkExistingEmployeebyemail(dto.employeeEmail)
-    await this.userHelper.checkExistingUserByName(dto.employeeFirstname,dto.employeeLastname)
-    await this.userHelper.checkEisitingUserByUserName(dto.username)
+    const employee = await this.prisma.checkExistingEmployeeByEmail(dto.employeeEmail)
+    await this.prisma.checkExistingUserByName(dto.employeeFirstname,dto.employeeLastname)
+    await this.prisma.checkExistingUserByUsername(dto.username)
     const saltrounds = 10
     const hasedPassword : string = await bcrypt.hash(dto.password,saltrounds) //when hashing the password try to remember to turn it to string
     return this.prisma.user.create({

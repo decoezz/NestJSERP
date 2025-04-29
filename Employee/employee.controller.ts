@@ -27,6 +27,23 @@ import { Role } from '@prisma/client';
 @Controller('employees')
 export class EmployeeController {
   constructor(private readonly Employee: EmployeeService) {}
+  
+  @Post('')
+  @HttpCode(201)
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles('Inventory_Manager')
+  async createEmployee(
+    @Body()
+    body: {
+      firstname: string;
+      lastname: string;
+      role: Role;
+      email: string;
+    },
+  ) {
+    return this.Employee.createEmployee(body);
+  }
+  
   @Get('getAllEmployees')
   @HttpCode(200)
   async getAllEmployees() {
@@ -38,21 +55,7 @@ export class EmployeeController {
   //     const employeeid = parseId(id)
   //    return this.Employee.getCertainEmployeeWithId(employeeid)
   // }
-  // @Post('CreateEmployee')
-  // @HttpCode(201)
-  // @UseGuards(AuthGuard('jwt'), RolesGuard)
-  // @Roles('Inventory_Manager')
-  // async createEmployee(
-  //   @Body()
-  //   body: {
-  //     firstname: string;
-  //     lastname: string;
-  //     role: Role;
-  //     email: string;
-  //   },
-  // ) {
-  //   return this.Employee.createEmployee(body);
-  // }
+
   // @Patch('UpdateEmployee')
   // @HttpCode(200)
   // async updateEmployee(@Body() body:updateEmployeeDto,@Query('id') id:string){

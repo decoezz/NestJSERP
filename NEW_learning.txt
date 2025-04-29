@@ -203,3 +203,9 @@ composition in the end of it is just the same as modules and services that are I
 the important part is adding the new UserHelper in the module file , after this step you can intialize an object from the class in the constructor just like any class/Injectable
 
 so one of the annoying errors that i didn't really know is that when we hash a password it returns a promise and not a string so in the password field i was trying to pass it as a string but in reality it's a promise to fix this error we use a specified library of bcrypt that is used for typeScript
+
+so i came back after let's say 4 days of straight errors and debugging but i though i ran out of time since i took a lot of time trying to understand the core issue i had and fix it. the problem i had was creating a helper class called user.helper in this class i had some utility functions that i wanted to use in my user/employee services but the problem that arise was something called circular dependencies.
+
+Circular dependencies happened because both the the classes user.helper and employee/user service class intialize the prismaService so they can interact with the database. the problem is that same prisma service is intialized twice once in the helper function and once in the employee/user class so the solution was something called forwarding which i tried to implement but didn't succeed so i had to go back to the old commit of github and reconstruct the old things and move the helper functions into the prisma service file
+
+while this is a practical solution it's not the best practice solution because when talking about scalability the idea that prsima service could get infested with a lot of helper functions is not functional nor scalable
