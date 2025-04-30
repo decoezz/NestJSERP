@@ -209,3 +209,14 @@ so i came back after let's say 4 days of straight errors and debugging but i tho
 Circular dependencies happened because both the the classes user.helper and employee/user service class intialize the prismaService so they can interact with the database. the problem is that same prisma service is intialized twice once in the helper function and once in the employee/user class so the solution was something called forwarding which i tried to implement but didn't succeed so i had to go back to the old commit of github and reconstruct the old things and move the helper functions into the prisma service file
 
 while this is a practical solution it's not the best practice solution because when talking about scalability the idea that prsima service could get infested with a lot of helper functions is not functional nor scalable
+
+so after working a little bit on the update part i added a new file called jwt-auth.guard.ts this file is needed to interact with the jwt Strategy file inside the controller now i can make role controlled route using both the following lines: 
+  @UseGuards(JwtAuthGuard,RolesGuard)
+  @Roles(Role.Inventory_Manager)
+  
+if i want to interact with the data i get from the jwt.Strategy file i can use the decorator of the @Request and use req.user and to be exact what gets sent is an object with the following : {id,username,role}
+
+I think we are drifting away from the logic of how the user and employee work so i will state it one more time: 
+
+only an inventory Manager can create Employee and give them an email that can be used to create a new user and only that email can be used to create a user after that the new employees can hit the new create user route 
+

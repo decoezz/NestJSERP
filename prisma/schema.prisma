@@ -19,6 +19,7 @@ model Employee {
   role      Role   @default(Employee)
   email     String @unique
   User      User?
+  active    Boolean @default(true)
   @@id(name: "Employee", fields: [firstname, lastname])
 }
 
@@ -30,7 +31,7 @@ model User {
   employeeFirstname String
   employeeLastname  String
   createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt // Fixed
+  updatedAt         DateTime @updatedAt 
   @@unique([employeeFirstname, employeeLastname])
 }
 

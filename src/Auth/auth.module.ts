@@ -17,6 +17,7 @@ import { ConfigService } from '@nestjs/config';
       }),
       inject: [ConfigService],
     }),
+    PrismaModule
   ],
   providers: [JwtStrategy,RolesGuard,NotAuthenticatedGuard],
   exports: [JwtStrategy, PassportModule, JwtModule,RolesGuard,NotAuthenticatedGuard],

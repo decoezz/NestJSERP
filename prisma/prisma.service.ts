@@ -19,8 +19,18 @@ export class PrismaService
   async onModuleDestroy() {
     await this.$disconnect();
   }
+  // Check for existing employee by email
+  async checkExistingEmployeeByEmailForEmployeeController(email:string) :Promise <void>{
+    const existingEmployee = await this.employee.findUnique({ where: { email } });
+    if (existingEmployee) {
+      throw new HttpException(
+        `No employee found with email ${email}`,
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
   // Existing employee-related helpers
-  async checkExistingEmployeeByEmail(email: string): Promise<Employee> {
+  async checkExistingEmployeeByEmail(email: string): Promise<void> {
     const existingEmployee = await this.employee.findUnique({ where: { email } });
     if (!existingEmployee) {
       throw new HttpException(
@@ -28,7 +38,6 @@ export class PrismaService
         HttpStatus.BAD_REQUEST,
       );
     }
-    return existingEmployee;
   }
   // Add user-related helpers
   async checkExistingUserByUsername(username: string): Promise<void> {
@@ -40,13 +49,31 @@ export class PrismaService
       );
     }
   }
-  async checkExistingUserByName(firstname: string, lastname: string): Promise<void> {
-    const existingUser = await this.user.findFirst({
-      where: { employeeFirstname: firstname, employeeLastname: lastname },
+  async checkExistingUserByNameForEmployeeService(firstname: string, lastname: string): Promise<void> {
+    const existingUser = await this.employee.findUnique({
+      where: { Employee:{firstname:firstname, lastname:lastname} },
     });
     if (existingUser) {
+      throw new HttpException('Employee not found', HttpStatus.NOT_FOUND);
+    }
+  }
+  async checkExistingUserByNameForUserService(firstname: string, lastname: string): Promise<void> {
+    const existingUser = await this.employee.findUnique({
+      where: { Employee:{firstname:firstname, lastname:lastname} },
+    });
+    if (!existingUser) {
+      throw new HttpException('Employee not found', HttpStatus.NOT_FOUND);
+    }
+  }
+  //check if there is already a user for the employee that is being registerd
+  async checkExistingUserByEmployee(firstname:string,lastname:string) :Promise <void>{
+    const existingUser = await this.user.findFirst({where:{
+      employeeFirstname:firstname,
+      employeeLastname:lastname
+    }})
+    if(existingUser){
       throw new HttpException(
-        `A User already exists ${firstname} ${lastname}`,
+        'Employee already has a User account',
         HttpStatus.BAD_REQUEST,
       );
     }

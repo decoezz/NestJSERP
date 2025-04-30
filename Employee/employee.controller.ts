@@ -24,30 +24,33 @@ import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from 'src/Auth/roles.guards';
 import { Roles } from 'src/Auth/roles.decorator';
 import { Role } from '@prisma/client';
+import { JwtAuthGuard } from 'src/Auth/jwt-auth.guard';
+import { CreateEmployeeDto } from './dto/create-employee.dto';
 @Controller('employees')
 export class EmployeeController {
-  constructor(private readonly Employee: EmployeeService) {}
+  constructor(private readonly employeeService: EmployeeService) {}
   
   @Post('')
   @HttpCode(201)
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles('Inventory_Manager')
-  async createEmployee(
-    @Body()
-    body: {
-      firstname: string;
-      lastname: string;
-      role: Role;
-      email: string;
-    },
-  ) {
-    return this.Employee.createEmployee(body);
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Inventory_Manager)
+  async createEmployee(@Body() dto : CreateEmployeeDto) {
+    return this.employeeService.createEmployee(dto);
   }
   
   @Get('getAllEmployees')
   @HttpCode(200)
+  @UseGuards(JwtAuthGuard,RolesGuard)
+  @Roles(Role.Inventory_Manager)
   async getAllEmployees() {
-    return this.Employee.getAllEmployees();
+    return this.employeeService.getAllEmployees();
+  }
+  @Get('GetInactiveEmployye')
+  @HttpCode(200)
+  @UseGuards(JwtAuthGuard,RolesGuard)
+  @Roles(Role.Inventory_Manager)
+  async GetInactiveEmployees(){
+    return this.employeeService.getAllInactiveEmployees()
   }
   // @Get('getEmployeeWithID')
   // @HttpCode(200)

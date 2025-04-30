@@ -6,12 +6,13 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { updateEntity } from 'src/Helpers/update-entity';
 import { PrismaService } from 'prisma/prisma.service';
 import { Role } from '@prisma/client';
+import { CreateEmployeeDto } from './dto/create-employee.dto';
 @Injectable()
 export class EmployeeService {
   constructor(private prisma: PrismaService) {}
 
   async getAllEmployees() {
-    const result = await this.prisma.employee.findMany();
+    const result = await this.prisma.employee.findMany({where:{active:true}});
     if (result.length === 0) {
       throw new HttpException('Error no users found', HttpStatus.NOT_FOUND);
     }
@@ -24,12 +25,7 @@ export class EmployeeService {
   //     }
   //     return user
   // }
-  async createEmployee(dto: {
-    firstname: string;
-    lastname: string;
-    role: Role;
-    email: string;
-  }) {
+  async createEmployee(dto:CreateEmployeeDto) {
     if (dto.role === 'Inventory_Manager') {
       //to ensure that the inventory_Manager can't be created through normal ways
       throw new HttpException(
@@ -37,8 +33,10 @@ export class EmployeeService {
         HttpStatus.FORBIDDEN,
       );
     }
-    await this.prisma.checkExistingUserByName(dto.firstname, dto.lastname);
-    await this.prisma.checkExistingEmployeeByEmail(dto.email);
+    //check if there is already an user with the provided email 
+    await this.prisma.checkExistingEmployeeByEmailForEmployeeController(dto.email);
+    // Check for existing employee by firstname and lastname (composite key)
+    await this.prisma.checkExistingUserByNameForEmployeeService(dto.firstname,dto.lastname)
     return this.prisma.employee.create({
       data: {
         firstname: dto.firstname,
@@ -47,6 +45,9 @@ export class EmployeeService {
         email: dto.email,
       },
     });
+  }
+  async getAllInactiveEmployees(){
+    return this.prisma.employee.findMany({where:{active:false}})
   }
   // async updateEmployee(id:number,name?:string,email?:string){
   //     return updateEntity(this.prisma.employee,id,{name,email},'Employee')
