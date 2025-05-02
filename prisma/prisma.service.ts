@@ -2,7 +2,13 @@
 https://docs.nestjs.com/providers#services
 */
 
-import { Injectable, OnModuleInit, OnModuleDestroy,HttpException,HttpStatus } from '@nestjs/common';
+import {
+  Injectable,
+  OnModuleInit,
+  OnModuleDestroy,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import { Employee } from '@prisma/client';
 @Injectable()
@@ -20,18 +26,24 @@ export class PrismaService
     await this.$disconnect();
   }
   // Check for existing employee by email
-  async checkExistingEmployeeByEmailForEmployeeController(email:string) :Promise <void>{
-    const existingEmployee = await this.employee.findUnique({ where: { email } });
+  async checkExistingEmployeeByEmailForEmployeeController(
+    email: string,
+  ): Promise<void> {
+    const existingEmployee = await this.employee.findUnique({
+      where: { email },
+    });
     if (existingEmployee) {
       throw new HttpException(
-        `No employee found with email ${email}`,
+        `Employee with this email was already found : ${email}`,
         HttpStatus.BAD_REQUEST,
       );
     }
   }
   // Existing employee-related helpers
   async checkExistingEmployeeByEmail(email: string): Promise<void> {
-    const existingEmployee = await this.employee.findUnique({ where: { email } });
+    const existingEmployee = await this.employee.findUnique({
+      where: { email },
+    });
     if (!existingEmployee) {
       throw new HttpException(
         `No employee found with email ${email}`,
@@ -49,31 +61,78 @@ export class PrismaService
       );
     }
   }
-  async checkExistingUserByNameForEmployeeService(firstname: string, lastname: string): Promise<void> {
+  async checkExistingUserByNameForEmployeeService(
+    firstname: string,
+    lastname: string,
+  ): Promise<void> {
     const existingUser = await this.employee.findUnique({
-      where: { Employee:{firstname:firstname, lastname:lastname} },
+      where: { Employee: { firstname: firstname, lastname: lastname } },
     });
     if (existingUser) {
       throw new HttpException('Employee not found', HttpStatus.NOT_FOUND);
     }
   }
-  async checkExistingUserByNameForUserService(firstname: string, lastname: string): Promise<void> {
+  async checkExistingUserByNameForUserService(
+    firstname: string,
+    lastname: string,
+  ): Promise<void> {
     const existingUser = await this.employee.findUnique({
-      where: { Employee:{firstname:firstname, lastname:lastname} },
+      where: { Employee: { firstname: firstname, lastname: lastname } },
     });
     if (!existingUser) {
       throw new HttpException('Employee not found', HttpStatus.NOT_FOUND);
     }
   }
   //check if there is already a user for the employee that is being registerd
-  async checkExistingUserByEmployee(firstname:string,lastname:string) :Promise <void>{
-    const existingUser = await this.user.findFirst({where:{
-      employeeFirstname:firstname,
-      employeeLastname:lastname
-    }})
-    if(existingUser){
+  async checkExistingUserByEmployee(
+    firstname: string,
+    lastname: string,
+  ): Promise<void> {
+    const existingUser = await this.user.findFirst({
+      where: {
+        employeeFirstname: firstname,
+        employeeLastname: lastname,
+      },
+    });
+    if (existingUser) {
       throw new HttpException(
         'Employee already has a User account',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+  async checkExisitngEmployeeByNameForTask(
+    firstname: string,
+    lastname: string,
+  ): Promise<Employee> {
+    const employee = await this.employee.findUnique({
+      where: { Employee: { firstname, lastname } },
+    });
+    if (!employee || !employee.active) {
+      throw new HttpException(
+        'Employee not found or inactive',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    return employee;
+  }
+  async checkExistingaTask(
+    firstname: string,
+    lastname: string,
+    title: string,
+  ): Promise<void> {
+    const existingTask = await this.task.findUnique({
+      where: {
+        assignedToFirstname_assignedToLastname_title: {
+          assignedToFirstname: firstname,
+          assignedToLastname: lastname,
+          title,
+        },
+      },
+    });
+    if (existingTask) {
+      throw new HttpException(
+        'Task already exists for this employee',
         HttpStatus.BAD_REQUEST,
       );
     }

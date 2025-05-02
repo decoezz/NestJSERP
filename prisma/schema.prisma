@@ -20,7 +20,25 @@ model Employee {
   email     String @unique
   User      User?
   active    Boolean @default(true)
+  tasks Task[]
   @@id(name: "Employee", fields: [firstname, lastname])
+}
+
+model Task{
+  id Int @id@default(autoincrement())
+  title String
+  description String?
+  deadline DateTime
+  status TaskStatus @default(Pending)
+  assignedTo Employee @relation(fields: [assignedToFirstname,assignedToLastname],references: [firstname,lastname])
+  assignedToFirstname String
+  assignedToLastname String
+  assignedByFirstname String
+  assignedByLastname String
+  assignedByRole Role
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  @@unique([assignedToFirstname, assignedToLastname, title],map:"EmployeeTaskData") // Prevent duplicate tasks for the same employee
 }
 
 model User {
@@ -62,4 +80,9 @@ enum Brand {
   Sharp
   Carrier
   LG
+}
+
+enum TaskStatus {
+  Pending
+  Completed
 }
