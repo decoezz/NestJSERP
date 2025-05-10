@@ -116,18 +116,11 @@ export class PrismaService
     }
     return employee;
   }
-  async checkExistingaTask(
-    firstname: string,
-    lastname: string,
-    title: string,
-  ): Promise<void> {
-    const existingTask = await this.task.findUnique({
+  async checkExistingaTask(firstname: string, lastname: string): Promise<void> {
+    const existingTask = await this.task.findFirst({
       where: {
-        assignedToFirstname_assignedToLastname_title: {
-          assignedToFirstname: firstname,
-          assignedToLastname: lastname,
-          title,
-        },
+        assignedToFirstname: firstname,
+        assignedToLastname: lastname,
       },
     });
     if (existingTask) {

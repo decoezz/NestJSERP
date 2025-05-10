@@ -38,7 +38,6 @@ model Task{
   assignedByRole Role
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
-  @@unique([assignedToFirstname, assignedToLastname, title],map:"EmployeeTaskData") // Prevent duplicate tasks for the same employee
 }
 
 model User {
@@ -85,4 +84,5 @@ enum Brand {
 enum TaskStatus {
   Pending
   Completed
+  OverDue
 }

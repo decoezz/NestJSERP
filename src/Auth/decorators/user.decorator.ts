@@ -7,3 +7,10 @@ export const User = createParamDecorator(
     return request.user; // Extract the user object from the request
   },
 );
+
+export interface JwtUser {
+  username: string;
+  firstname: string;
+  lastname: string;
+  role: string;
+}

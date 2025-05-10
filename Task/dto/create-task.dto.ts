@@ -11,7 +11,7 @@ export class CreateTaskDto {
   description?: string;
 
   @IsNotEmpty()
-  @IsDateString()
+  @IsString()
   deadline: string;
 
   @IsNotEmpty()
