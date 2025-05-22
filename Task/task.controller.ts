@@ -12,6 +12,7 @@ import {
   Get,
   Delete,
   Request,
+  Query,
 } from '@nestjs/common';
 import { TaskService } from './task.service';
 import { JwtAuthGuard } from 'src/Auth/jwt-auth.guard';
@@ -21,6 +22,8 @@ import { CreateTaskDto } from './dto/create-task.dto';
 import { Roles } from 'src/Auth/decorators/roles.decorator';
 import { User } from 'src/Auth/decorators/user.decorator';
 import { JwtUser } from 'src/Auth/decorators/user.decorator';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { SortDto } from 'src/common/dto/sort.dto';
 @Controller('tasks')
 export class TaskController {
   constructor(private taskService: TaskService) {}
@@ -49,14 +52,25 @@ export class TaskController {
   async GetTasksByEmployee(
     @Param('firstname') firstname: string,
     @Param('lastname') lastname: string,
+    @Query() pagination: PaginationDto,
+    @Query() sortBy : SortDto
   ) {
-    return this.taskService.getTasksByEmployee(firstname, lastname);
+    return this.taskService.GetTaskByEmployee(firstname, lastname, pagination,sortBy);
   }
   @Get('/me')
   @HttpCode(200)
   @UseGuards(JwtAuthGuard)
-  async GetCurrentTask(@User() user: JwtUser) {
-    return this.taskService.GetTaskByEmployee(user.firstname, user.lastname);
+  async GetCurrentTask(
+    @User() user: JwtUser,
+    @Query() pagination: PaginationDto,
+    @Query() sortBy : SortDto
+  ) {
+    return this.taskService.GetTaskByEmployee(
+      user.firstname,
+      user.lastname,
+      pagination,
+      sortBy
+    );
   }
   @Delete('/:id')
   @HttpCode(204)

@@ -9,6 +9,8 @@ import { Role } from '@prisma/client';
 import { TaskStatus } from './enum/task-status.enum';
 import { checkDeadline } from 'src/common/chech-deadline';
 import { first, last, take } from 'rxjs';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { SortDto } from 'src/common/dto/sort.dto';
 @Injectable()
 export class TaskService {
   constructor(private prisma: PrismaService) {}
@@ -86,30 +88,30 @@ export class TaskService {
       },
     });
   }
-  async getTasksByEmployee(firstname: string, lastname: string) {
-    const currentDate = new Date();
-    const tasks = await this.prisma.task.findMany({
-      where: {
-        assignedToFirstname: firstname,
-        assignedToLastname: lastname,
-      },
-      orderBy: {
-        deadline: 'asc',
-      },
-    });
-    // Update status for overdue tasks in-memory
-    const updatedTasks = tasks.map((task) => {
-      if (
-        currentDate > new Date(task.deadline) &&
-        task.status !== 'Completed'
-      ) {
-        return { ...task, status: 'Overdue' as TaskStatus };
-      }
-      return task;
-    });
+  // async getTasksByEmployee(firstname: string, lastname: string) {
+  //   const currentDate = new Date();
+  //   const tasks = await this.prisma.task.findMany({
+  //     where: {
+  //       assignedToFirstname: firstname,
+  //       assignedToLastname: lastname,
+  //     },
+  //     orderBy: {
+  //       deadline: 'asc',
+  //     },
+  //   });
+  //   // Update status for overdue tasks in-memory
+  //   const updatedTasks = tasks.map((task) => {
+  //     if (
+  //       currentDate > new Date(task.deadline) &&
+  //       task.status !== 'Completed'
+  //     ) {
+  //       return { ...task, status: 'Overdue' as TaskStatus };
+  //     }
+  //     return task;
+  //   });
 
-    return updatedTasks;
-  }
+  //   return updatedTasks;
+  // }
   async DeleteCertainTask(id: number) {
     const task = await this.prisma.task.findFirst({ where: { id } });
     if (!task) {
@@ -120,21 +122,36 @@ export class TaskService {
     }
     await this.prisma.task.delete({ where: { id } });
   }
-  async GetTaskByEmployee(firstname: string, lastname: string) {
+  async GetTaskByEmployee(
+    firstname: string,
+    lastname: string,
+    pagination: PaginationDto,
+    sortByfromDto: SortDto,
+  ) {
     const currentDate = new Date();
+
+    //Use sortDto's getOrderBy() to get the orderBy object
+    const orderBy = sortByfromDto.getOrderBy();
+
+    const where: any = {
+      assignedToFirstname: firstname,
+      assignedToLastname: lastname,
+    };
+    if (sortByfromDto.status) {
+      where.status = sortByfromDto.status;
+    }
     const tasks = await this.prisma.task.findMany({
-      where: {
-        assignedToFirstname: firstname,
-        assignedToLastname: lastname,
-      },
+      where,
+      orderBy,
+      skip: pagination.getSkip(),
+      take: pagination.getTake(),
     });
     if (!tasks || tasks.length === 0) {
       throw new HttpException(
-        `There is no tasks for the user with the name : ${firstname} ${lastname}`,
-        HttpStatus.BAD_REQUEST,
+        `There are no tasks for the user with the name : ${firstname} ${lastname}`,
+        HttpStatus.NOT_FOUND,
       );
     }
-    // Update status for overdue tasks in-memory
     const updatedTasks = tasks.map((task) => {
       if (
         currentDate > new Date(task.deadline) &&
@@ -144,7 +161,15 @@ export class TaskService {
       }
       return task;
     });
-
-    return updatedTasks;
+    const total = await this.prisma.task.count({ where });
+    return {
+      data: updatedTasks,
+      meta: {
+        total,
+        page: pagination.page,
+        pageSize: pagination.pageSize,
+        totalPages: Math.ceil(total / pagination.pageSize),
+      },
+    };
   }
 }
